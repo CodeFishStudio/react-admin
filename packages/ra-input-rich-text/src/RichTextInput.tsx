@@ -23,6 +23,12 @@ import {
 import { RichTextInputToolbar } from './RichTextInputToolbar';
 import { TiptapEditorProvider } from './TiptapEditorProvider';
 
+export const RichTextInputType = {
+    TEXT: 'text',
+    JSON: 'json',
+    HTML: 'html',
+};
+
 /**
  * A rich text editor for the react-admin that is accessible and supports translations. Based on [Tiptap](https://www.tiptap.dev/).
  * @param props The input props. Accept all common react-admin input props.
@@ -86,6 +92,7 @@ export const RichTextInput = (props: RichTextInputProps) => {
         source,
         sx,
         toolbar,
+        output = RichTextInputType.HTML,
     } = props;
 
     const resource = useResourceContext(props);
@@ -138,8 +145,19 @@ export const RichTextInput = (props: RichTextInputProps) => {
                 return;
             }
 
-            const html = editor.getHTML();
-            field.onChange(html);
+            let editorOutput: string | Object = '';
+            switch (output.toLowerCase()) {
+                case RichTextInputType.JSON:
+                    editorOutput = editor.getJSON();
+                    break;
+                case RichTextInputType.TEXT:
+                    editorOutput = editor.getText();
+                    break;
+                default:
+                    editorOutput = editor.getHTML();
+            }
+
+            field.onChange(editorOutput);
             field.onBlur();
         };
 
@@ -208,6 +226,7 @@ export type RichTextInputProps = CommonInputProps &
         readOnly?: boolean;
         editorOptions?: Partial<EditorOptions>;
         toolbar?: ReactNode;
+        output?: string;
         sx?: (typeof Root)['defaultProps']['sx'];
     };
 
